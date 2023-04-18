@@ -11,9 +11,8 @@ from typing import List, Union, Any
 @dataclass(frozen=True)
 class TranslationChain():
     id: str = ""
-    created_at: float = field(default_factory=time.time)
-    last_updated_at: float = field(default_factory=time.time)
-    finished_at: float = None
+    created: float = field(default_factory=time.time)
+    finished: float = None
     input: str = ""
     output: str = ""
     target_domain: str = ""
@@ -48,7 +47,7 @@ class TranslationChain():
                   self.steps[self.current_step] = asdict(step)
                   object.__setattr__(self, "current_step", self.current_step + 1)
                   if self.current_step == len(self.steps):
-                    object.__setattr__(self, "finished_at", time.time())
+                    object.__setattr__(self, "finished", time.time())
                   self.save()
                   print("Finished ", step.type)
                 except Exception as e:
@@ -146,7 +145,7 @@ class TranslationChain():
                 with open(f"cache/{file}", "r") as f:
                     data = json.loads(f.read())
                 chain = cls(**data)
-                if chain.finished_at:
+                if chain.finished:
                     chains.append(chain)
         return chains
 
