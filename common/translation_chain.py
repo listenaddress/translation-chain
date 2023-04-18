@@ -18,7 +18,8 @@ class TranslationChain():
     created_at: float = field(default_factory=time.time)
     last_updated_at: float = field(default_factory=time.time)
     finished_at: float = None
-    message: str = ""
+    input: str = ""
+    output: str = ""
     target_domain: str = ""
     hash: str = ""
     current_step: int = 0
@@ -32,15 +33,15 @@ class TranslationChain():
     initial_translation: str = ""
     initial_translation_relevant_papers: list = field(default_factory=list)
     initial_translation_relevant_papers_summary: str = ""
-    final_translation: str = ""
+    
 
     def __post_init__(self):
-        if not self.message:
-            raise ValueError("Message is required")
+        if not self.input:
+            raise ValueError("input is required")
         if not self.steps:
             object.__setattr__(self, "steps", get_default_steps())
         if not self.hash:
-            object.__setattr__(self, "hash", hashlib.sha256(self.message.encode('utf-8')).hexdigest())
+            object.__setattr__(self, "hash", hashlib.sha256(self.input.encode('utf-8')).hexdigest())
         if not self.target_domain:
             object.__setattr__(self, "target_domain", "developmental biology")
 
@@ -120,12 +121,12 @@ class TranslationChain():
     def critique(self):
         return "After reviewing the translation, I think it is good to go"
     
-    def get_final_translation(self):
-        object.__setattr__(self, "final_translation", "The body and the person are important for memory")
+    def get_output(self):
+        object.__setattr__(self, "output", "The body and the person are important for memory")
         return "Final translation: The body and the person are important for memory"
 
     @classmethod
-    def load(cls, message=message, hash=hash):
+    def load(cls, input=input, hash=hash):
         if hash:
             file_path = f"cache/{hash}.json"
             if os.path.exists(file_path):
@@ -138,7 +139,7 @@ class TranslationChain():
             else:
                 raise ValueError("No translation chain found for hash")
             
-        hash = hashlib.sha256(message.encode('utf-8')).hexdigest()
+        hash = hashlib.sha256(input.encode('utf-8')).hexdigest()
         file_path = f"cache/{hash}.json"
         if os.path.exists(file_path):
             with open(file_path, "r") as f:
@@ -147,9 +148,21 @@ class TranslationChain():
 
             return chain
         else:
-            new_translation = cls(message=message)
+            new_translation = cls(input=input)
             new_translation.save()
             return new_translation
+        
+    @classmethod
+    def get_finished_chains(cls):
+        chains = []
+        for file in os.listdir("cache"):
+            if file.endswith(".json"):
+                with open(f"cache/{file}", "r") as f:
+                    data = json.loads(f.read())
+                chain = cls(**data)
+                if chain.finished_at:
+                    chains.append(chain)
+        return chains
 
 
 def get_default_steps():
@@ -163,5 +176,5 @@ def get_default_steps():
         Step(type="summarize_relevance_of_papers_for_translation"),
         Step(type="adjust_abstract"),
         Step(type="critique"),
-        Step(type="get_final_translation")
+        Step(type="get_output")
     ]
