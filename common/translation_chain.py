@@ -55,15 +55,15 @@ class TranslationChain():
 
             if not step.finished:
                 try:
-                  print("Starting step: ", step.type)
+                  print("Starting ", step.type)
                   step.output = getattr(self, step.type)()
                   step.finished = True
                   self.steps[self.current_step] = asdict(step)
                   object.__setattr__(self, "current_step", self.current_step + 1)
                   self.save()
-                  print("Finished step: ", step.type)
+                  print("Finished ", step.type)
                 except Exception as e:
-                  print("Error in step: ", step.type)
+                  print("Error in ", step.type)
                   print(e)
                   break
         
