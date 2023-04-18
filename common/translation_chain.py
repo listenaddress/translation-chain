@@ -4,14 +4,9 @@ import time
 import json
 
 from common.constants import *  
+from common.step import Step
 from dataclasses import dataclass, field, asdict
 from typing import List, Union, Any
-
-@dataclass
-class Step:
-    type: str
-    output: Any = None
-    finished: bool = False
 
 @dataclass(frozen=True)
 class TranslationChain():
@@ -21,7 +16,7 @@ class TranslationChain():
     input: str = ""
     output: str = ""
     target_domain: str = ""
-    hash: str = ""
+    id: str = ""
     current_step: int = 0
     steps: list[Step] = field(default_factory=list)
     calls_to_gpt: list = field(default_factory=list)
@@ -40,13 +35,13 @@ class TranslationChain():
             raise ValueError("input is required")
         if not self.steps:
             object.__setattr__(self, "steps", get_default_steps())
-        if not self.hash:
-            object.__setattr__(self, "hash", hashlib.sha256(self.input.encode('utf-8')).hexdigest())
+        if not self.id:
+            object.__setattr__(self, "id", hashlib.sha256(self.input.encode('utf-8')).hexdigest())
         if not self.target_domain:
             object.__setattr__(self, "target_domain", "developmental biology")
 
     def save(self):
-        file_path = f"cache/{self.hash}.json"
+        file_path = f"cache/{self.id}.json"
         with open(file_path, "w") as f:
             f.write(json.dumps(asdict(self)))
     
@@ -126,9 +121,9 @@ class TranslationChain():
         return "Final translation: The body and the person are important for memory"
 
     @classmethod
-    def load(cls, input=input, hash=hash):
-        if hash:
-            file_path = f"cache/{hash}.json"
+    def load(cls, input=input, id=id):
+        if id:
+            file_path = f"cache/{id}.json"
             if os.path.exists(file_path):
                 with open(file_path, "r") as f:
                     data = json.loads(f.read())
@@ -137,10 +132,10 @@ class TranslationChain():
                     step = Step(**step)
                 return chain
             else:
-                raise ValueError("No translation chain found for hash")
+                raise ValueError("No translation chain found for id")
             
-        hash = hashlib.sha256(input.encode('utf-8')).hexdigest()
-        file_path = f"cache/{hash}.json"
+        id = hashlib.sha256(input.encode('utf-8')).hexdigest()
+        file_path = f"cache/{id}.json"
         if os.path.exists(file_path):
             with open(file_path, "r") as f:
                 data = json.loads(f.read())
