@@ -20,6 +20,10 @@ from common.translation_chain import TranslationChain
 10. Add citations if/where it makes sense
 11. Save translation to our hypothesis repository 
 12. Run job to review translations and return the top 10% most novel, compelling, and scientifically feasible abstracts 
+
+And here's how the process will start:
+1. Process will be loading (i.e. either created or loaded from cache)
+2. We'll run the process and it'll start on whatever step is the current step
 """
 
 # Set up translation process
@@ -72,16 +76,31 @@ prompt = "You are a translator—you translate neuroscience to developmental bio
     "N:Critical plasticity periods D:Competency windows for developmental induction events" + \
     "N:What are the goals of hedgehogs D:What are the target morphologies of hedgehogs" + \
     "N:On brains. Retina, behavioral plasticity, muscle, synaptic activity and lateralization D:On bodies. Epithelium, regenerative capacity, cell, cell-signaling activity  and left-right asymmetry" + \
-    "[Examples done][Now, before making a full translation, let's first: 1. Pull out main 3 neuroscience concepts in the following abstract and 2. Describe 3 ways to translate each concept to developmental biology. Again, these should be scientifically compelling and feasible translations. Be creative but straight forward and grounded in what's known in science literature.]Please translate the following to {process.target_domain}:" + \
+    "[Examples done][For now, don't make a full translation, let's first: 1. Pull out main 3 neuroscience concepts in the following abstract and 2. Describe, in detail, 3 ways to translate each concept to developmental biology. What do these translated concepts mirror or relate to the neuroscience concept? Make sure sure these are scientifically compelling and feasible translations. Be creative but straight forward and grounded in what's known in science literature.]Here's the abstract: " + \
     process.message
 
 print(prompt)
 
-# response = openai.ChatCompletion.create(
-#     model="gpt-4",
-#     messages=[
-#         {"role": "system", "content": prompt},
-#         {"role": "user", "content": message},
-#     ]
-# )
+response = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": prompt},
+    ]
+)
 
+print(response)
+if response.choices and response.choices[0].message.content:
+    process.steps.append({
+        "step": 1,
+        "step_type": "pull_neuroscience_concepts_and_describe_possible_translations",
+        "output": response.choices[0].message.content,
+        # Model should be response.model if it exists
+        "model": response.model if hasattr(response, "model") else "GPT",
+    })
+
+    print(process)
+
+    process.save()
+else:
+    print("No response from GPT-4 for the pull_neuroscience_concepts_and_describe_possible_translations step")
+    sys.exit(1)
