@@ -10,24 +10,15 @@ from typing import List, Union, Any
 
 @dataclass(frozen=True)
 class TranslationChain():
+    id: str = ""
     created_at: float = field(default_factory=time.time)
     last_updated_at: float = field(default_factory=time.time)
     finished_at: float = None
     input: str = ""
     output: str = ""
     target_domain: str = ""
-    id: str = ""
     current_step: int = 0
     steps: list[Step] = field(default_factory=list)
-    calls_to_gpt: list = field(default_factory=list)
-    neuroscience_concepts: list = field(default_factory=list)
-    possible_translations: list = field(default_factory=list)
-    relevant_papers: list = field(default_factory=list)
-    relevant_papers_summary: str = ""
-    best_translation_options: list = field(default_factory=list)
-    initial_translation: str = ""
-    initial_translation_relevant_papers: list = field(default_factory=list)
-    initial_translation_relevant_papers_summary: str = ""
     
 
     def __post_init__(self):
