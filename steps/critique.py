@@ -1,52 +1,52 @@
 import sys
 from common.constants import *
 
-def critique(chain):
-    # Get the last finished step
-    last_step = chain.steps[chain.current_step - 1]
-    if last_step["type"] == "translate":
-        print("Translating...")
-        prompt = base_prompt + \
-          "Actually, instead of translating something, let's critique the following translation. First, here's the original neuroscience: " + \
-          chain.input + \
-          "And here's the translation: " + \
-          last_step["output"] + \
-          "Let's critique this translation. What terms don't make sense in the context of developmental biology? What concepts aren't translating nicely? How might we improve this? Remember: this should fully make sense as a developmental biology abstract you'd see in a high-tier developmental biology journal. After answering those questions, provide an updated translation."
-        print(prompt)
+def get_last_translation(chain):
+    print("In here", chain.steps)
+    for step in reversed(chain.steps[:chain.current_step]):
+        print("step: ", step)
+        if step["type"] == "translate":
+            return step["output"]
 
+def critique(chain):
+    last_step = chain.steps[chain.current_step - 1]
+    last_translation = get_last_translation(chain)
+    critique_prompt = base_prompt + \
+        "Actually, instead of translating something, let's critique the following translation. Here's the original neuroscience: " + \
+        chain.input + \
+        "And here's the translation: " + \
+        last_translation + \
+        "Ok, let's critique that translation in detail. What terms don't make sense as developmental biology? What concepts aren't translating nicely? Are there gramatical/conceptual mistakes? How might we improve this? Remember: we're trying to apply the insights of the input into a new domain. The output should make sense as a developmental biology abstract you'd see in a high-tier developmental biology journal. Don't worry about providing a follow up translation, just give a detailed critique, as if you were a top-tier biology professor."
+
+    if last_step["type"] == "translate":
+        print("Critique prompt: ", critique_prompt)
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model=base_model,
             messages=[
-                {"role": "system", "content": prompt},
+                {"role": "system", "content": critique_prompt},
             ]
         )
 
-        print(response)
         if response.choices and response.choices[0].message.content:
+            print("Critique: " + response.choices[0].message.content)
             return response.choices[0].message.content
         else:
-          raise Exception("No response from GPT-4 for the critique step")
+          raise Exception("No response from GPT for the critique step")
     elif last_step["type"] == "critique":
-        # Same as before but let's add "Let's critique this translation one more time. What terms don't make sense in the context of developmental biology? What concepts aren't translating nicely? How might we improve this? Remember: this should fully make sense as a developmental biology abstract you'd see in a high-tier developmental biology journal. After answering those questions, provide an updated translation. "
-        print("Critiquing...")
-        prompt = base_prompt + \
-          "Actually, instead of translating something, let's critique the following translation. First, here's the original neuroscience: " + \
-          chain.input + \
-          "And here's the translation: " + \
+        critique_prompt += "Here's a prior critique: " + \
           last_step["output"] + \
-          "Here's the last critique: " + \
-          last_step["output"] + \
-          "Let's critique this translation one more time. What terms don't make sense in the context of developmental biology? What concepts aren't translating nicely? How might we improve this? What gramatical/conceptual mistakes are there? Remember: this should fully make sense as a developmental biology abstract you'd see in a high-tier developmental biology journal. After answering those questions, provide an updated translation that begins with 'TRANSLATION:'."
+          "Ok, create an new critique for the translation in detail and do not repeat what is above in the prior critique. Make new suggestions."
+        print("Critique prompt: ", critique_prompt)
         
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model=base_model,
             messages=[
-                {"role": "system", "content": prompt},
+                {"role": "system", "content": critique_prompt},
             ]
         )
 
-        print(response)
         if response.choices and response.choices[0].message.content:
+            print("\nCritique: " + response.choices[0].message.content)
             return response.choices[0].message.content
         else:
-          raise Exception("No response from GPT-4 for a follow up critique step")
+          raise Exception("No response from GPT for a follow up critique step")

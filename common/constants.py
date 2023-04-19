@@ -10,6 +10,7 @@ SEMANTIC_SCHOLAR_API_KEY = os.getenv("SEMANTIC_SCHOLAR_API_KEY")
 SEMANTIC_SCHOLAR_DATASETS_API_URL = os.getenv(
     "SEMANTIC_SCHOLAR_DATASETS_API_URL")
 
+base_model = "gpt-4"
 openai.api_key = os.getenv("OPEN_AI_API_KEY")
 
 ss_headers = {'x-api-key': SEMANTIC_SCHOLAR_API_KEY}
