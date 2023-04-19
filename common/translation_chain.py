@@ -2,11 +2,16 @@ import hashlib
 import os
 import time
 import json
+from dataclasses import dataclass, field, asdict
+from typing import List, Union, Any
 
 from common.constants import *  
 from common.step import Step
-from dataclasses import dataclass, field, asdict
-from typing import List, Union, Any
+from steps.get_neuroscience_concepts_and_possible_translations import get_neuroscience_concepts_and_possible_translations
+from steps.translate import translate
+from steps.critique import critique
+from steps.translate_with_critiques import translate_with_critiques
+
 
 @dataclass(frozen=True)
 class TranslationChain():
@@ -15,7 +20,7 @@ class TranslationChain():
     finished: float = None
     input: str = ""
     output: str = ""
-    target_domain: str = ""
+    target_domain: str = "developmental biology"
     current_step: int = 0
     steps: list[Step] = field(default_factory=list)
     
@@ -24,11 +29,9 @@ class TranslationChain():
         if not self.input:
             raise ValueError("input is required")
         if not self.steps:
-            object.__setattr__(self, "steps", get_default_steps())
+            object.__setattr__(self, "steps", get_minimal_steps())
         if not self.id:
             object.__setattr__(self, "id", hashlib.sha256(self.input.encode('utf-8')).hexdigest())
-        if not self.target_domain:
-            object.__setattr__(self, "target_domain", "developmental biology")
 
     def save(self):
         file_path = f"cache/{self.id}.json"
@@ -36,13 +39,17 @@ class TranslationChain():
             f.write(json.dumps(asdict(self)))
     
     def run(self):
-        for step in self.steps:
+        # Loop over all steps that aren't finished
+        for step in self.steps[self.current_step:]:
             if isinstance(step, dict):
                 step = Step(**step)
 
             if not step.finished:
                 try:
                   step.output = getattr(self, step.type)()
+                  if step.output is None:
+                      raise Exception("Output is None for step " + step.type)
+
                   step.finished = True
                   self.steps[self.current_step] = asdict(step)
                   object.__setattr__(self, "current_step", self.current_step + 1)
@@ -55,10 +62,21 @@ class TranslationChain():
                   print(e)
                   break
         
+        print("Run function complete.")
+        
         
     
     def get_neuroscience_concepts_and_possible_translations(self):
-      return "They talk about the hippocampus and the amygdala. Theses could be translated to body and person." 
+      return get_neuroscience_concepts_and_possible_translations(self)
+    
+    def translate(self):
+      return translate(self)
+    
+    def critique(self):
+      return critique(self)
+    
+    def translate_with_critiques(self):
+      return translate_with_critiques(self)
 
     def find_relevant_papers(self):
       return [
@@ -80,9 +98,6 @@ class TranslationChain():
     def summarize_best_translation_options(self):
       return "The best options for translating the hippocampus and the amygdala are body and person"
     
-    def translate(self):
-      return "The body and the person are important for memory"
-    
     def find_relevant_papers_for_translation(self):
         return [
             {
@@ -103,8 +118,8 @@ class TranslationChain():
     def adjust_abstract(self):
         return "The body and the person are important for memory"
     
-    def critique(self):
-        return "After reviewing the translation, I think it is good to go"
+    def critique_again(self):
+        return "After reviewing the translation again, I think it is good to go"
     
     def get_output(self):
         object.__setattr__(self, "output", "The body and the person are important for memory")
@@ -149,6 +164,13 @@ class TranslationChain():
                     chains.append(chain)
         return chains
 
+def get_minimal_steps():
+    return [
+        Step(type="get_neuroscience_concepts_and_possible_translations"),
+        Step(type="translate"),
+        Step(type="critique"),
+        Step(type="critique")
+    ]
 
 def get_default_steps():
     return [

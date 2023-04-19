@@ -1,5 +1,5 @@
-- Get the whole skeleton working
-  - Load chain
-  - Run chain at whatever the current step is 
-  - If step fails, stop the chain there
-  - Run a job that goes through the cached chains, looks for chains that are complete with an output ready to be reviewed... add those to an array of chain outputs to review. Then review and save the top 10.
+x Get the whole skeleton working
+  x Load chain
+  x Run chain at whatever the current step is 
+  x If step fails, stop the chain there
+  x Run a job that goes through the cached chains, looks for chains that are complete with an output ready to be reviewed... add those to an array of chain outputs to review. Then review and save the top 10.
