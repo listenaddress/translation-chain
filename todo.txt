@@ -3,3 +3,13 @@ x Get the whole skeleton working
   x Run chain at whatever the current step is 
   x If step fails, stop the chain there
   x Run a job that goes through the cached chains, looks for chains that are complete with an output ready to be reviewed... add those to an array of chain outputs to review. Then review and save the top 10.
+
+- Refine all of the code—get it real nice
+
+- Then go forward and optimize
+- Add steps to
+  - Construct queries
+  - Execute queries on semantic scholar
+  - Summarize anything relevant to our translation 
+- Add real review step
+

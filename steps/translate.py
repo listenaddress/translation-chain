@@ -6,7 +6,6 @@ def get_last_translation(chain):
             return step["output"]
 
 def translate(chain):
-    # Get the last finished step
     last_step = chain.steps[chain.current_step - 1]
     if last_step["type"] == 'get_neuroscience_concepts_and_possible_translations':
         prompt = base_prompt + \

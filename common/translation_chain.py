@@ -3,7 +3,6 @@ import os
 import time
 import json
 from dataclasses import dataclass, field, asdict
-from typing import List, Union, Any
 
 from common.constants import *  
 from common.step import Step
@@ -22,7 +21,6 @@ class TranslationChain():
     target_domain: str = "developmental biology"
     current_step: int = 0
     steps: list[Step] = field(default_factory=list)
-
 
     def __post_init__(self):
         if not self.input:
@@ -87,9 +85,6 @@ class TranslationChain():
     
     def summarize_relevance_of_papers(self):
       return "The hippocampus and the amygdala are important for memory"
-        
-    def adjust_abstract(self):
-        return "The body and the person are important for memory"
 
     @classmethod
     def load(cls, input=input):
