@@ -41,7 +41,7 @@ def get_steps_with_one_look_up():
     ]
 
 
-def get_max_steps():
+def get_default_steps():
     return [
         Step(type="get_neuroscience_concepts_and_possible_translations"),
         Step(type="find_and_summarize_relevant_papers"),

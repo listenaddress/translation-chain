@@ -68,7 +68,6 @@ minimal_prompt = "You are a translator—you translate neuroscience to developme
     "- Use real terms from developmental biology literature." + \
     "- Don't include any neuroscience words, like a part of the brain. Do the best you can to find the most relevant translation." + \
     "- Be compelling. No fanciful language just be scientifically novel and plausible, given what is known in science." + \
-    "- Unless necessary to prove a point, the translation should be structurally similar to the input. " + \
     "For example, here are some terms and plausible translations ('N:' is neuroscience and 'D:' is Developmental Biology):" + \
     "N:Neuron D:Cell" + \
     "N:Behavior D:Morphogenesis" + \
