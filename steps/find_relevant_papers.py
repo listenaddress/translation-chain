@@ -22,17 +22,14 @@ def find_relevant_papers(chain):
             print("Find relevant papers response: " + response.choices[0].message.content)
             # Using GPT-3.5-turbo, the response is 5 queries, and put them into a list
             get_five_queries_prompt = "Here is a previous response from GPT-4. It include 5 search queries. Please put them into a valid python list with no other words in your response. Just the python list." + response.choices[0].message.content
-            final_five_queries_array = openai.ChatCompletion.create(
+            final_five_queries = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": get_five_queries_prompt},
                 ]
             )
-            if final_five_queries_array.choices and final_five_queries_array.choices[0].message.content:
-                print("final_five_queries_array: " + final_five_queries_array.choices[0].message.content)
-                # Turn the final_five_queries_array string into a list
-                final_five_queries = eval(final_five_queries_array.choices[0].message.content)
-                print("final_five_queries: ", type(final_five_queries))
+            if final_five_queries.choices and final_five_queries.choices[0].message.content:
+                final_five_queries_list = eval(final_five_queries.choices[0].message.content)
 
             raise Exception("Not fully implemented yet")
 
