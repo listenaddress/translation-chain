@@ -9,6 +9,7 @@ from common.step import Step
 from steps.get_neuroscience_concepts_and_possible_translations import get_neuroscience_concepts_and_possible_translations
 from steps.translate import translate
 from steps.critique import critique
+from steps.find_relevant_papers import find_relevant_papers
 
 
 @dataclass(frozen=True)
@@ -26,14 +27,9 @@ class TranslationChain():
         if not self.input:
             raise ValueError("input is required")
         if not self.steps:
-            object.__setattr__(self, "steps", get_minimal_steps())
+            object.__setattr__(self, "steps", get_default_steps())
         if not self.id:
             object.__setattr__(self, "id", hashlib.sha256(self.input.encode('utf-8')).hexdigest())
-
-    def save(self):
-        file_path = f"cache/{self.id}.json"
-        with open(file_path, "w") as f:
-            f.write(json.dumps(asdict(self)))
 
     def run(self):
         for step in self.steps[self.current_step:]:
@@ -57,7 +53,11 @@ class TranslationChain():
               print("Error in ", step.type)
               print(e)
               break
-        
+      
+    def save(self):
+        file_path = f"cache/{self.id}.json"
+        with open(file_path, "w") as f:
+            f.write(json.dumps(asdict(self)))
 
     def get_neuroscience_concepts_and_possible_translations(self):
       return get_neuroscience_concepts_and_possible_translations(self)
@@ -68,20 +68,8 @@ class TranslationChain():
     def critique(self):
       return critique(self)
 
-
     def find_relevant_papers(self):
-      return [
-        {
-          "title": "The hippocampus and the amygdala are important for memory",
-          "abstract": "The hippocampus and the amygdala are important for memory",
-          "url": "https://www.semanticscholar.org/paper/The-hippocampus-and-the-amygdala-are-important-for-Blair/7b9f1c8f7f8b0d7e7a2c2e8d1b0c2b4e0b4a9c8d"
-        },
-        {
-          "title": "The hippocampus and the amygdala are important for memory",
-          "abstract": "The hippocampus and the amygdala are important for memory",
-          "url": "https://www.semanticscholar.org/paper/The-hippocampus-and-the-amygdala-are-important-for-Blair/7b9f1c8f7f8b0d7e7a2c2e8d1b0c2b4e0b4a9c8d"
-        }
-      ]
+      return find_relevant_papers(self)
     
     def summarize_relevance_of_papers(self):
       return "The hippocampus and the amygdala are important for memory"

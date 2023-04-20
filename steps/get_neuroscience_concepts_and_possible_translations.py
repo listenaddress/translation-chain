@@ -16,4 +16,4 @@ def get_neuroscience_concepts_and_possible_translations(chain):
       print("Neuroscience concepts and possible translations: " + response.choices[0].message.content)
       return response.choices[0].message.content
   else:
-      raise Exception("No response from GPT-4 for the pull_neuroscience_concepts_and_describe_possible_translations step")
+      raise Exception("No response from GPT for the pull_neuroscience_concepts_and_describe_possible_translations step")
