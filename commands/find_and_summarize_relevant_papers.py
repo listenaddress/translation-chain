@@ -1,7 +1,7 @@
 from common.constants import *
 from common.helpers import get_last_translation
 
-def find_relevant_papers(chain):
+def find_and_summarize_relevant_papers(chain):
     last_step = chain.steps[chain.current_step - 1]
     
     if last_step["type"] == "get_neuroscience_concepts_and_possible_translations":
@@ -20,7 +20,6 @@ def find_relevant_papers(chain):
 
         if response.choices and response.choices[0].message.content:
             print("Find relevant papers response: " + response.choices[0].message.content)
-            # Using GPT-3.5-turbo, the response is 5 queries, and put them into a list
             get_five_queries_prompt = "Here is a previous response from GPT-4. It include 5 search queries. Please put them into a valid python list with no other words in your response. Just the python list." + response.choices[0].message.content
             final_five_queries = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",

@@ -6,10 +6,10 @@ from dataclasses import dataclass, field, asdict
 
 from common.constants import *  
 from common.step import Step
-from steps.get_neuroscience_concepts_and_possible_translations import get_neuroscience_concepts_and_possible_translations
-from steps.translate import translate
-from steps.critique import critique
-from steps.find_relevant_papers import find_relevant_papers
+from commands.get_neuroscience_concepts_and_possible_translations import get_neuroscience_concepts_and_possible_translations
+from commands.translate import translate
+from commands.critique import critique
+from commands.find_and_summarize_relevant_papers import find_and_summarize_relevant_papers
 
 
 @dataclass(frozen=True)
@@ -68,8 +68,8 @@ class TranslationChain():
     def critique(self):
       return critique(self)
 
-    def find_relevant_papers(self):
-      return find_relevant_papers(self)
+    def find_and_summarize_relevant_papers(self):
+      return find_and_summarize_relevant_papers(self)
     
     def summarize_relevance_of_papers(self):
       return "The hippocampus and the amygdala are important for memory"
@@ -124,13 +124,11 @@ def get_minimal_steps():
 def get_default_steps():
     return [
         Step(type="get_neuroscience_concepts_and_possible_translations"),
-        Step(type="find_relevant_papers"),
-        Step(type="summarize_relevance_of_papers"),
+        Step(type="find_and_summarize_relevant_papers"),
         Step(type="translate"),
         Step(type="critique"),
         Step(type="critique"),
         Step(type="translate"),
-        Step(type="find_relevant_papers"),
-        Step(type="summarize_relevance_of_papers"),
+        Step(type="find_and_summarize_relevant_papers"),
         Step(type="translate")
     ]
