@@ -30,7 +30,7 @@ def get_minimal_steps():
     ]
 
 
-def get_steps_with_one_look_up():
+def get_steps_with_look_up():
     return [
         Step(type="get_neuroscience_concepts_and_possible_translations"),
         Step(type="find_and_summarize_relevant_papers"),
@@ -41,7 +41,7 @@ def get_steps_with_one_look_up():
     ]
 
 
-def get_default_steps():
+def get_steps_with_two_look_ups():
     return [
         Step(type="get_neuroscience_concepts_and_possible_translations"),
         Step(type="find_and_summarize_relevant_papers"),

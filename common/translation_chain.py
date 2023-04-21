@@ -5,7 +5,7 @@ import json
 from dataclasses import dataclass, field, asdict
 
 from common.constants import *
-from common.helpers import get_default_steps, get_steps_with_one_look_up, get_minimal_steps
+from common.helpers import get_steps_with_two_look_ups, get_steps_with_look_up, get_minimal_steps
 from common.step import Step
 from steps.get_neuroscience_concepts_and_possible_translations import get_neuroscience_concepts_and_possible_translations
 from steps.translate import translate
@@ -28,7 +28,7 @@ class TranslationChain():
         if not self.input:
             raise ValueError("input is required")
         if not self.steps:
-            object.__setattr__(self, "steps", get_steps_with_one_look_up())
+            object.__setattr__(self, "steps", get_steps_with_look_up())
         if not self.id:
             object.__setattr__(self, "id", hashlib.sha256(
                 self.input.encode('utf-8')).hexdigest())
