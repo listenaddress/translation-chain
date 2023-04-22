@@ -52,3 +52,12 @@ def get_steps_with_two_look_ups():
         Step(type="find_and_summarize_relevant_papers"),
         Step(type="translate")
     ]
+
+
+def get_chat_completion(prompt, model=base_model):
+    return openai.ChatCompletion.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": prompt},
+        ]
+    )

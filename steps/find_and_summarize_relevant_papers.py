@@ -1,7 +1,7 @@
 import requests
 
 from common.constants import *
-from common.helpers import get_last_translation
+from common.helpers import get_last_translation, get_chat_completion
 
 
 def find_and_summarize_relevant_papers(chain):
@@ -16,24 +16,14 @@ def find_and_summarize_relevant_papers(chain):
             "[Abstract done] Some suggestions we can use if you want: " + last_step["output"] + \
             keyword_search_prompt_ending
 
-        response = openai.ChatCompletion.create(
-            model=base_model,
-            messages=[
-                {"role": "system", "content": find_relevant_papers_prompt},
-            ]
-        )
+        response = get_chat_completion(find_relevant_papers_prompt)
 
         if response.choices and response.choices[0].message.content:
-            print("Find relevant papers response: " +
-                  response.choices[0].message.content)
             get_five_queries_prompt = "Here is a previous response from GPT-4. It include 5 search queries. Please put them into a valid python list with no other words in your response. Just the python list. Each string in the list should have individual words separated by plus signs. I.e. 'What+is+cognition+and+where+is+it'. If there any spaces between words or plus signs remove them." + \
                 response.choices[0].message.content
-            final_five_queries = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": get_five_queries_prompt},
-                ]
-            )
+
+            final_five_queries = get_chat_completion(
+                get_five_queries_prompt, "gpt-3.5-turbo")
             if final_five_queries.choices and final_five_queries.choices[0].message.content:
                 final_five_queries_list = eval(
                     final_five_queries.choices[0].message.content)
@@ -48,7 +38,8 @@ def find_and_summarize_relevant_papers(chain):
                         "https://api.semanticscholar.org/graph/v1/paper/search?limit=4&query=" + query)
                     if response.status_code == 200:
                         print("Response: ", response.json())
-                        papers += response.json()["data"]
+                        if "data" in response.json():
+                            papers += response.json()["data"]
 
                 # Go get details on each paper
                 for paper in papers:
@@ -85,12 +76,7 @@ def find_and_summarize_relevant_papers(chain):
                         "And here's the paper we're looking at to see if it say anything relevant we should keep in mind as we translate to developmental biology: " + \
                         context
 
-                    response = openai.ChatCompletion.create(
-                        model=base_model,
-                        messages=[
-                            {"role": "system", "content": prompt},
-                        ]
-                    )
+                    response = get_chat_completion(prompt)
 
                     if response.choices and response.choices[0].message.content:
                         print("Relevant summary response: " +
@@ -108,12 +94,7 @@ def find_and_summarize_relevant_papers(chain):
                 summarize_summaries_prompt = "Here are a bunch of summaries and why they might be useful for a translation we're making. Can you concisely describe only the parts that are noteworthy." + \
                     relevant_summaries
 
-                response = openai.ChatCompletion.create(
-                    model=base_model,
-                    messages=[
-                        {"role": "system", "content": summarize_summaries_prompt},
-                    ]
-                )
+                response = get_chat_completion(summarize_summaries_prompt)
 
                 if response.choices and response.choices[0].message.content:
                     print("Summarized summaries response: " +
